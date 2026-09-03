@@ -1,0 +1,124 @@
+
+
+$color-accent: #4338ca;
+$color-accent-hover: #372ea8;
+$color-page-bg: #f6f7f9;
+$color-card-bg: #ffffff;
+$color-border: #d1d5db;
+$color-border-soft: #e2e5ea;
+$color-text-primary: #111827;
+$color-text-secondary: #374151;
+$color-text-muted: #6b7280;
+
+$radius: 8px;
+$radius-card: 12px;
+$font-heading: 'Space Grotesk', system-ui, sans-serif;
+$font-body: system-ui, -apple-system, sans-serif;
+
+main {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-page-bg;
+  padding: 3rem 1rem;
+  font-family: $font-body;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 360px;
+  background: $color-card-bg;
+  border: 0.5px solid $color-border-soft;
+  border-radius: $radius-card;
+  padding: 2rem;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+
+  h1 {
+    font-family: $font-heading;
+    font-size: 18px;
+    font-weight: 500;
+    color: $color-text-primary;
+    margin: 0 0 1.5rem;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+      font-size: 13px;
+      color: $color-text-secondary;
+    }
+
+    input {
+      height: 36px;
+      border: 0.5px solid $color-border;
+      border-radius: $radius;
+      padding: 0 10px;
+      font-size: 14px;
+      color: $color-text-primary;
+      background: $color-card-bg;
+      box-sizing: border-box;
+      transition: border-color 0.15s ease;
+
+      &::placeholder {
+        color: #9ca3af;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $color-accent;
+        box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.12);
+      }
+    }
+  }
+
+  .button {
+    height: 38px;
+    border: none;
+    border-radius: $radius;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.15s ease;
+
+    &.primary-button {
+      background: $color-accent;
+      color: #ffffff;
+
+      &:hover {
+        background: $color-accent-hover;
+      }
+
+      &:disabled {
+        background: $color-border;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  p {
+    text-align: center;
+    font-size: 13px;
+    color: $color-text-muted;
+    margin: 1.25rem 0 0;
+
+    a {
+      color: $color-accent;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
