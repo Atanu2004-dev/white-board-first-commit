@@ -35,7 +35,7 @@ async function  registerUserController(req,res) {
         password: hash
     })
 
-    const token = jwt.sign( //User ke liye ek JWT token generat
+    const token = jwt.sign( //User ke liye ek JWT token generate
         {id: user._id, username: user.username},
         process.env.JWT_SECRET,
         {expiresIn:"1d"}
@@ -98,7 +98,7 @@ async function loginUserController(req,res) {
 /**
  * @name logoutUserController
  * @description clear token form user cookie and add the token in blacklist
- * @access pulic  
+ * @access Public  
  */
 
 async function logoutUserController(req,res){
