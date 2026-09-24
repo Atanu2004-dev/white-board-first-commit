@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import  { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { getBoards, createBoard } from '../services/board.api'
+import Notifications from '../components/Notifications'
 import '../Dashboard.css'
 
 const Dashboard = () => {
@@ -8,6 +9,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [creating, setCreating] = useState(false)
+  
 
   const navigate = useNavigate()
 
@@ -68,6 +70,7 @@ const Dashboard = () => {
             {boards.length} board{boards.length !== 1 ? 's' : ''}
           </p>
         </div>
+        <Notifications />
         <button className="button primary-button" onClick={handleNewBoard} disabled={creating}>
           {creating ? 'Creating...' : 'New Board'}
         </button>

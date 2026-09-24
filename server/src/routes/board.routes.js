@@ -1,5 +1,5 @@
 const {Router} = require('express')
-const { createBoardController, getBoardsController,getBoardController,updateBoardStrokesController } = require('../controllers/board.controller')
+const { createBoardController, getBoardsController,getBoardController,updateBoardStrokesController,deleteBoardController,addCollaboratorController } = require('../controllers/board.controller')
 const authMiddleware = require('../middlewares/auth.middleware')
 const boardRouter = Router()
 
@@ -36,6 +36,23 @@ boardRouter.get('/:boardId', authMiddleware.authUser, getBoardController)
  */
 
 boardRouter.put('/:boardId/strokes', authMiddleware.authUser, updateBoardStrokesController)
+
+/**
+ * @route DELETE/api/board/:boardId
+ * @description delete a board owned by the user
+ * @access private
+ * 
+ */
+boardRouter.delete('/:boardId', authMiddleware.authUser, deleteBoardController)
+
+/**
+ * @route post/api/board//:boardId/collaborators
+ * @description collaborate to another user
+ * @access private
+ * 
+ */
+
+boardRouter.post('/:boardId/collaborators', authMiddleware.authUser, addCollaboratorController)
 
 
 

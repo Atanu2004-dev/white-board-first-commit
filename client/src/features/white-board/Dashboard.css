@@ -74,6 +74,75 @@
   cursor: not-allowed;
 }
 
+.notifications {
+  position: relative;
+  margin-left: auto;
+  margin-right: 12px;
+}
+
+.notification-button {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+
+.notification-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  margin-left: 8px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: #e8483a;
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.notification-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 10;
+  width: min(360px, calc(100vw - 2.5rem));
+  padding: 16px;
+  border: 1px solid #e2e5ea;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.14);
+}
+
+.notification-panel h2 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  color: #111827;
+}
+
+.notification-panel p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 13px;
+}
+
+.notification-item + .notification-item {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.notification-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.notification-actions .button {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
 /* Empty state */
 
 .empty-state-wrap {
@@ -209,4 +278,26 @@
   font-size: 12.5px;
   color: #9ca3af;
   margin: 0;
+}
+
+.board-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.board-card-delete {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.board-card-delete:hover {
+  background: #fee;
+  border-color: #f5b5b5;
 }

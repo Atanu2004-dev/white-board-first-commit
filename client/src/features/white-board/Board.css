@@ -81,6 +81,78 @@
   cursor: crosshair;
   display: block;
 }
+.toolbar-spacer {
+  flex: 1;
+}
+ 
+.button.danger-button {
+  height: 32px;
+  padding: 0 14px;
+  border: 0.5px solid #fecaca;
+  border-radius: 6px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 13px;
+  cursor: pointer;
+}
+ 
+.button.danger-button:hover {
+  background: #fee2e2;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.modal-subtitle {
+  font-size: 13px;
+  color: #666;
+  margin: 4px 0 16px;
+}
+
+.modal-content input[type="email"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.share-error {
+  color: #d33;
+  font-size: 13px;
+  margin: 4px 0;
+}
+
+.share-success {
+  color: #2a8;
+  font-size: 13px;
+  margin: 4px 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
 
 /* On small screens, don't resize the canvas itself — that would break
    the offsetX/offsetY coordinate math against the fixed 1200x700 drawing

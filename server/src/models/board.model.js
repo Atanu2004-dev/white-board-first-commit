@@ -4,9 +4,13 @@ const boardSchema = new mongoose.Schema(
   {
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'users',
       required: true,
     },
+    collaborators: [{
+       type: mongoose.Schema.Types.ObjectId, 
+       ref: 'users'
+    }],
     title: {
       type: String,
       default: 'Untitled Board',

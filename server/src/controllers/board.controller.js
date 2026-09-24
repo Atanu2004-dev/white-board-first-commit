@@ -1,4 +1,5 @@
 const Board = require('../models/board.model')
+const User = require('../models/user.model')
 
 
 /**
@@ -33,7 +34,9 @@ const getBoardsController = async (req, res) => {
   try {
     const owner = req.user.id
 
-    const boards = await Board.find({ owner }).sort({ updatedAt: -1 })
+    const boards = await Board.find({ 
+      owner
+    }).sort({ updatedAt: -1 })
 
     res.status(200).json(boards)
   } catch (err) {
@@ -48,14 +51,17 @@ const getBoardsController = async (req, res) => {
  */
 const getBoardController = async (req, res) => {
   try {
-    const owner = req.user.id
+    const userId = req.user.id
     const { boardId } = req.params
     console.log('boardId:', boardId)
-    console.log('owner:', owner)
+    console.log('owner:', userId)
     const boardExists = await Board.findById(boardId)
     console.log('board exists (any owner):', boardExists)
  
-    const board = await Board.findOne({ _id: boardId, owner })
+    const board = await Board.findOne({ 
+      _id: boardId,
+      $or: [{ owner: userId }, { collaborators: userId }]
+    })
  
     if (!board) {
       return res.status(404).json({ message: 'Board not found' })
@@ -74,12 +80,12 @@ const getBoardController = async (req, res) => {
  */
 const updateBoardStrokesController = async (req, res) => {
   try {
-    const owner = req.user.id
+    const userId  = req.user.id
     const { boardId } = req.params
     const { strokes } = req.body
  
     const board = await Board.findOneAndUpdate(
-      { _id: boardId, owner },
+      { _id: boardId, $or: [{ owner: userId }, { collaborators: userId }] },
       { strokes },
       { new: true }
     )
@@ -93,7 +99,65 @@ const updateBoardStrokesController = async (req, res) => {
     res.status(500).json({ message: err.message })
   }
 }
+/**
+ * @name deleteBoardController
+ * @description delete a board 
+ * @access Private
+ */
+
+const deleteBoardController = async (req, res) => {
+  try {
+    const owner = req.user.id
+    const { boardId } = req.params
+ 
+    const board = await Board.findOneAndDelete({ _id: boardId, owner })
+ 
+    if (!board) {
+      return res.status(404).json({ message: 'Board not found' })
+    }
+ 
+    res.status(200).json({ message: 'Board deleted successfully' })
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
+/**
+ * @name addCollaboratorController
+ * @description add another user as a collaborator on this board (owner only)
+ * @access Private
+ */
+
+const addCollaboratorController = async (req, res) => {
+  try {
+    const owner = req.user.id
+    const { boardId } = req.params
+    const { email } = req.body
+
+    const userToAdd = await User.findOne({ email })
+    if (!userToAdd) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    const board = await Board.findOneAndUpdate(
+      { _id: boardId, owner },//security check-only current loged in user is valid
+      { $addToSet: { collaborators: userToAdd.id } },
+      { new: true }
+    )
+
+    if (!board) {
+      return res.status(404).json({ message: 'Board not found' })
+    }
+    if (userToAdd.id.toString() === owner) {
+      return res.status(400).json({ message: "You can't add yourself as a collaborator" })
+    }
+
+    res.status(200).json(board)
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
 
 
 
-module.exports = { createBoardController, getBoardsController,getBoardController,updateBoardStrokesController, }
+module.exports = { createBoardController, getBoardsController,getBoardController,updateBoardStrokesController,deleteBoardController,addCollaboratorController }

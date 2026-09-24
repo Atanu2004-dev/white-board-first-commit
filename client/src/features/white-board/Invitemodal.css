@@ -1,0 +1,99 @@
+.invite-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.invite-modal {
+  background: #fff;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 380px;
+  padding: 1.5rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+.invite-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.invite-modal-header h2 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.invite-modal-close {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #6b7280;
+  line-height: 1;
+  padding: 4px;
+}
+
+.invite-modal-close:hover {
+  color: #1c1e21;
+}
+
+.invite-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.invite-modal-form label {
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.invite-modal-form input {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.invite-modal-form input:focus {
+  outline: none;
+  border-color: #2d6cdf;
+  box-shadow: 0 0 0 3px rgba(45, 108, 223, 0.15);
+}
+
+.invite-modal-message {
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.invite-modal-message.error {
+  color: #e8483a;
+}
+
+.invite-modal-message.success {
+  color: #3fa66b;
+}
+
+.invite-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.invite-modal-actions .primary-button {
+  background: #2d6cdf;
+  color: #fff;
+  border-color: #2d6cdf;
+}
+
+.invite-modal-actions .primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

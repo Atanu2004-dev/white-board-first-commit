@@ -1,10 +1,16 @@
-import React, { useRef, useEffect, useState } from 'react'
-import { useParams } from 'react-router'
-import { getBoard, saveStrokes } from '../services/board.api'
+import { useRef, useEffect, useState } from 'react'
+import { useParams,useNavigate } from 'react-router'
+import { io } from 'socket.io-client' 
+import { getBoard, saveStrokes,deleteBoard } from '../services/board.api'
+import InviteModal from '../components/InviteModal'
 import '../Board.css'
 
+
+const SOCKET_URL = 'http://localhost:3000'
 const Board = () => {
   const { boardId } = useParams()
+  const navigate = useNavigate()
+
 
   const canvasRef = useRef(null) //holds the referrence of canves refference 
   const ctxRef = useRef(null)
@@ -13,12 +19,15 @@ const Board = () => {
 
   const saveTimeoutRef = useRef(null) // holds the debounce timer id
   const hasLoadedRef = useRef(false) // prevents saving before the initial load finishes
+  const socketRef = useRef(null) 
 
 
   const [isDrawing, setIsDrawing] = useState(false)
   const [color, setColor] = useState('#1C1E21')
   const [lineWidth, setLineWidth] = useState(3)
   const [strokes, setStrokes] = useState([])
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
   const canvas = canvasRef.current   //Pehle wale canvasRef se actual <canvas> DOM element nikal liya
@@ -46,6 +55,27 @@ const Board = () => {
   }, [color, lineWidth])
 
 
+  // Connect socket, join this board's room, listen for remote strokes
+
+  useEffect(() => {
+    const socket = io(SOCKET_URL)
+    socketRef.current = socket
+
+    socket.emit('join-board', boardId)
+
+    socket.on('new-stroke', (stroke) => {
+      setStrokes((prev) => {
+        const updated = [...prev, stroke]
+        redrawCanvas(updated)
+        return updated
+      })
+    })
+
+    return () => {
+      socket.off('new-stroke')
+      socket.disconnect()
+    }
+  }, [boardId])
 
   // Load saved strokes for this board once the canvas is ready
   useEffect(() => {
@@ -151,7 +181,8 @@ const Board = () => {
     const finishedStroke = currentStrokeRef.current   // 👈 ADD THIS
     if (finishedStroke && finishedStroke.points.length > 1) {   // 👈 ADD THIS
       setStrokes((prev) => [...prev, finishedStroke])           // 👈 ADD THIS
-    }                                                  // 👈 ADD THIS
+      socketRef.current.emit('new-stroke', { boardId, stroke: finishedStroke })
+    }                                                 
     currentStrokeRef.current = null 
   }
 
@@ -160,6 +191,20 @@ const Board = () => {
     const canvas = canvasRef.current
     ctxRef.current.clearRect(0, 0, canvas.width, canvas.height)
   }
+  const handleDelete = async () => {
+    const confirmed = window.confirm('Delete this board? This cannot be undone.')
+    if (!confirmed) return
+
+    try {
+      setIsDeleting(true)
+      await deleteBoard(boardId)
+      navigate('/')
+    } catch (err) {
+      console.log('Could not delete board:', err)
+      setIsDeleting(false)
+    }
+  }
+
 
   const colors = ['#1C1E21', '#2D6CDF', '#E8483A', '#3FA66B', '#F59E0B','#C026D3', '#0891B2',]
   console.log(strokes)
@@ -187,6 +232,21 @@ const Board = () => {
         <button className="button" onClick={clearCanvas}>
           Clear
         </button>
+
+        <div className="toolbar-spacer" />
+
+        <button className="button" onClick={() =>{console.log('click'); setIsInviteModalOpen(true)} }>
+          Invite
+        </button>
+
+       <button
+          className="button danger-button"
+          onClick={handleDelete}
+          disabled={isDeleting}
+        >
+          {isDeleting ? 'Deleting...' : 'Delete board'}
+        </button>
+
       </div>
       <div className="canvas-scroll">
         <canvas
@@ -197,6 +257,11 @@ const Board = () => {
           onMouseLeave={stopDrawing}
       />
       </div>
+      <InviteModal
+        boardId={boardId}
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+      />     
     </main>
   )
 }

@@ -50,6 +50,26 @@ export async function saveStrokes(boardId, strokes) {
         throw err
     }
 }
+export async function deleteBoard(boardId) {
+    try{
+        const response = await api.delete(`/api/board/${boardId}`)
+
+        return response.data
+        
+    }catch(err){
+        console.log(err)
+        throw err
+    }
+}
+export async function addCollaborator(boardId, email) {
+  try {
+    const response = await api.post(`/api/board/${boardId}/collaborators`, { email })
+    return response.data
+  } catch (err) {
+    console.log(err)
+    throw err
+  }
+}
 
 
 
