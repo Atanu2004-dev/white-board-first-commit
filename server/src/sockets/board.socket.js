@@ -16,6 +16,14 @@ module.exports = (io) => {
       socket.to(boardId).emit('new-stroke', stroke)
     })
 
+    socket.on('clear-board', (boardId) => {
+      socket.to(boardId).emit('clear-board')
+    })
+
+    socket.on('undo-board', (change) => {
+      socket.to(change.boardId).emit('undo-board', change)
+    })
+
     socket.on('disconnect', () => {
       console.log('Client disconnected:', socket.id)
     })

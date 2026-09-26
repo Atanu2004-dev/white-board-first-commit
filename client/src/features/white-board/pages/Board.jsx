@@ -20,12 +20,15 @@ const Board = () => {
   const saveTimeoutRef = useRef(null) // holds the debounce timer id
   const hasLoadedRef = useRef(false) // prevents saving before the initial load finishes
   const socketRef = useRef(null) 
+  const strokesRef = useRef([])
+  const historyRef = useRef([])
 
 
   const [isDrawing, setIsDrawing] = useState(false)
   const [color, setColor] = useState('#1C1E21')
   const [lineWidth, setLineWidth] = useState(3)
   const [strokes, setStrokes] = useState([])
+  const [canUndo, setCanUndo] = useState(false)
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -61,18 +64,27 @@ const Board = () => {
     const socket = io(SOCKET_URL)
     socketRef.current = socket
 
-    socket.emit('join-board', boardId)
+    const joinBoard = () => socket.emit('join-board', boardId)
+    socket.on('connect', joinBoard)
 
     socket.on('new-stroke', (stroke) => {
-      setStrokes((prev) => {
-        const updated = [...prev, stroke]
-        redrawCanvas(updated)
-        return updated
-      })
+      applyBoardState([...strokesRef.current, stroke])
+    })
+
+    socket.on('clear-board', () => {
+      if (strokesRef.current.length > 0) applyBoardState([])
+    })
+
+    socket.on('undo-board', ({ strokes: previousStrokes }) => {
+      historyRef.current.pop()
+      applyBoardState(previousStrokes, false)
     })
 
     return () => {
+      socket.off('connect', joinBoard)
       socket.off('new-stroke')
+      socket.off('clear-board')
+      socket.off('undo-board')
       socket.disconnect()
     }
   }, [boardId])
@@ -80,12 +92,16 @@ const Board = () => {
   // Load saved strokes for this board once the canvas is ready
   useEffect(() => {
     async function loadBoard() {
+      hasLoadedRef.current = false
+      historyRef.current = []
+      strokesRef.current = []
+      setCanUndo(false)
       try {
         const board = await getBoard(boardId)
-        if (board.strokes && board.strokes.length > 0) {
-          setStrokes(board.strokes)
-          redrawCanvas(board.strokes)
-        }
+        const loadedStrokes = board.strokes || []
+        strokesRef.current = loadedStrokes
+        setStrokes(loadedStrokes)
+        redrawCanvas(loadedStrokes)
       } catch (err) {
         console.log('Could not load board strokes:', err)
       } finally {
@@ -142,6 +158,26 @@ const Board = () => {
     ctx.lineWidth = lineWidth
   }
 
+  const applyBoardState = (nextStrokes, recordHistory = true) => {
+    if (recordHistory) {
+      historyRef.current.push(strokesRef.current)
+      if (historyRef.current.length > 50) historyRef.current.shift()
+    }
+
+    strokesRef.current = nextStrokes
+    setStrokes(nextStrokes)
+    setCanUndo(historyRef.current.length > 0)
+    redrawCanvas(nextStrokes)
+  }
+
+  const undo = () => {
+    if (historyRef.current.length === 0) return
+
+    const previousStrokes = historyRef.current.pop()
+    applyBoardState(previousStrokes, false)
+    socketRef.current.emit('undo-board', { boardId, strokes: previousStrokes })
+  }
+
   const getCoords = (e) => ({
     x: e.nativeEvent.offsetX,
     y: e.nativeEvent.offsetY,
@@ -180,16 +216,16 @@ const Board = () => {
 
     const finishedStroke = currentStrokeRef.current   // 👈 ADD THIS
     if (finishedStroke && finishedStroke.points.length > 1) {   // 👈 ADD THIS
-      setStrokes((prev) => [...prev, finishedStroke])           // 👈 ADD THIS
+      applyBoardState([...strokesRef.current, finishedStroke])
       socketRef.current.emit('new-stroke', { boardId, stroke: finishedStroke })
     }                                                 
     currentStrokeRef.current = null 
   }
 
   const clearCanvas = () => {
-    setStrokes([]) 
-    const canvas = canvasRef.current
-    ctxRef.current.clearRect(0, 0, canvas.width, canvas.height)
+    if (strokesRef.current.length === 0) return
+    applyBoardState([])
+    socketRef.current.emit('clear-board', boardId)
   }
   const handleDelete = async () => {
     const confirmed = window.confirm('Delete this board? This cannot be undone.')
@@ -207,7 +243,6 @@ const Board = () => {
 
 
   const colors = ['#1C1E21', '#2D6CDF', '#E8483A', '#3FA66B', '#F59E0B','#C026D3', '#0891B2',]
-  console.log(strokes)
   return (
     <main className="board-container">
       <div className="board-toolbar">
@@ -228,6 +263,10 @@ const Board = () => {
           value={lineWidth}
           onChange={(e) => setLineWidth(Number(e.target.value))}
         />
+
+        <button className="button" onClick={undo} disabled={!canUndo} title="Undo last board change">
+          Undo
+        </button>
 
         <button className="button" onClick={clearCanvas}>
           Clear

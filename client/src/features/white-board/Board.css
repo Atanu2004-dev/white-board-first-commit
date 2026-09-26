@@ -73,6 +73,11 @@
   background: #f9fafb;
 }
 
+.board-toolbar .button:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
 .board-container canvas {
   background: #ffffff;
   border: 0.5px solid #e2e5ea;

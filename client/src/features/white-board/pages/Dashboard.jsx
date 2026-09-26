@@ -1,6 +1,7 @@
 import  { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { getBoards, createBoard } from '../services/board.api'
+import { useAuth } from '../../auth/hooks/useAuth'
 import Notifications from '../components/Notifications'
 import '../Dashboard.css'
 
@@ -12,6 +13,7 @@ const Dashboard = () => {
   
 
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   useEffect(() => {
     async function fetchBoards() {
@@ -65,7 +67,8 @@ const Dashboard = () => {
     <main className="dashboard-container">
       <div className="dashboard-header">
         <div>
-          <h1>Your Boards</h1>
+          {user?.username && <h1 className="dashboard-greeting">Welcome, {user.username}</h1>}
+          
           <p className="subtitle">
             {boards.length} board{boards.length !== 1 ? 's' : ''}
           </p>
